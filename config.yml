@@ -1,0 +1,20 @@
+routerPort: 8080
+originHost: localhost
+originPort: 8000
+cacheTtlSeconds: 60
+cacheMaxSize: 1000
+
+edges:
+  - id: edge-us-1
+    region: us-east
+    host: localhost
+    port: 9001
+  - id: edge-eu-1
+    region: eu-west
+    host: localhost
+    port: 9002
+
+ipRegionMapping:
+  "192.168.1.": "us-east"
+  "10.0.0.":    "eu-west"
+  "0.0.0.0":    "us-east"
