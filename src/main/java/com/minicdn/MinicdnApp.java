@@ -30,7 +30,7 @@ public class MinicdnApp {
         // Edge US (port 9003)
         new Thread(() -> EdgeMain.main(new String[]{"9003", "http://localhost:9000"})).start();
 
-        Thread.sleep(2000);
+        Thread.sleep(4000);
 
         new Thread(() -> {
             System.setProperty("routerPort", "8080");
