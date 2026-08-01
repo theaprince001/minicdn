@@ -122,6 +122,7 @@ public class RouterMain {
                         .append("</li>");
             }
             html.append("</ul>");
+            html.append("<p><a href='https://minicdn.onrender.com/content/hello.txt'>Click Here to Check</a></p>");
             ctx.html(html.toString());
         });
 
