@@ -8,7 +8,7 @@ edges:
   - id: edge-us-1
     region: us-east
     host: localhost
-    port: 9001
+    port: 9003
   - id: edge-eu-1
     region: eu-west
     host: localhost
