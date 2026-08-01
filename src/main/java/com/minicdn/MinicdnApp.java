@@ -24,11 +24,11 @@ public class MinicdnApp {
 
         Thread.sleep(2000);
 
+        // Edge EU (port 9002)
+        new Thread(() -> EdgeMain.main(new String[]{"9002", "http://localhost:9000"})).start();
+
         // Edge US (port 9003)
         new Thread(() -> EdgeMain.main(new String[]{"9003", "http://localhost:9000"})).start();
-
-// Edge EU (port 9002)
-        new Thread(() -> EdgeMain.main(new String[]{"9002", "http://localhost:9000"})).start();
 
         Thread.sleep(2000);
 
