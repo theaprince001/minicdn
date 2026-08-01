@@ -115,8 +115,10 @@ public class EdgeMain {
         });
 
         // Health
-        app.get("/health", ctx -> ctx.result("OK"));
-
+        app.get("/health", ctx -> {
+            System.out.println("Health endpoint hit on port " + port);
+            ctx.result("OK");
+        });
         // Prometheus metrics endpoint (standard /metrics)
         app.get("/metrics", ctx -> {
             ctx.contentType("text/plain; version=0.0.4");
