@@ -29,6 +29,11 @@ public class RouterMain {
     private static PrometheusMeterRegistry meterRegistry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
     private static Counter redirectCounter;
 
+    // Shared HTTP client for proxy requests (reuse, not create per request)
+    private static final HttpClient httpClient = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofSeconds(5))
+            .build();
+
     public static void main(String[] args) throws Exception {
         config = Config.load("config.yml");
 
@@ -58,7 +63,7 @@ public class RouterMain {
 
         Javalin app = Javalin.create().start(config.routerPort);
 
-        // Content redirect (with metrics)
+        // REVERSE PROXY endpoint – fetches content from edge/origin and returns directly
         app.get("/content/{path}", ctx -> {
             String path = ctx.pathParam("path");
             String clientIp = ctx.header("X-Forwarded-For") != null
@@ -74,13 +79,36 @@ public class RouterMain {
                 selected = ring.getHealthyNode("/content/" + path, edgeHealthy);
             }
 
+            // Build the backend URL
+            String backendUrl;
             if (selected != null) {
-                String target = "http://" + selected.host + ":" + selected.port + "/content/" + path;
-                redirectCounter.increment(); // count successful redirect
-                ctx.redirect(target);
+                backendUrl = "http://" + selected.host + ":" + selected.port + "/content/" + path;
+                redirectCounter.increment(); // count successful routing
             } else {
-                // fallback to origin
-                ctx.redirect("http://" + config.originHost + ":" + config.originPort + "/content/" + path);
+                // Fallback to origin
+                backendUrl = "http://" + config.originHost + ":" + config.originPort + "/content/" + path;
+            }
+
+            try {
+                // Proxy the request to the backend (edge or origin)
+                HttpRequest backendReq = HttpRequest.newBuilder()
+                        .uri(URI.create(backendUrl))
+                        .timeout(Duration.ofSeconds(10))
+                        .GET()
+                        .build();
+
+                HttpResponse<byte[]> backendResp = httpClient.send(backendReq, HttpResponse.BodyHandlers.ofByteArray());
+
+                // Forward status and headers (skip hop‑by‑hop headers)
+                ctx.status(backendResp.statusCode());
+                backendResp.headers().map().forEach((key, values) -> {
+                    if (!"Transfer-Encoding".equalsIgnoreCase(key) && !"Connection".equalsIgnoreCase(key)) {
+                        values.forEach(val -> ctx.header(key, val));
+                    }
+                });
+                ctx.result(backendResp.body());
+            } catch (Exception e) {
+                ctx.status(502).result("Bad Gateway");
             }
         });
 
@@ -102,10 +130,11 @@ public class RouterMain {
             ctx.contentType("text/plain; version=0.0.4");
             ctx.result(meterRegistry.scrape());
         });
+
+        // Health endpoint (for Render)
         app.get("/health", ctx -> ctx.result("OK"));
 
-
-        System.out.println("Router started on http://localhost:" + config.routerPort);
+        System.out.println("Router (reverse proxy mode) started on http://localhost:" + config.routerPort);
     }
 
     private static void checkEdges() {
