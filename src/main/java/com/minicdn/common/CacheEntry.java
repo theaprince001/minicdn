@@ -1,4 +1,5 @@
 package com.minicdn.common;
 
-public class CacheEntry {
-}
+import java.util.Map;
+
+public record CacheEntry(int statusCode, String contentType, byte[] body, Map<String, String> headers) {}
