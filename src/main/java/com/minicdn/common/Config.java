@@ -1,4 +1,4 @@
 package com.minicdn.common;
 
-public class config {
+public class Config {
 }
