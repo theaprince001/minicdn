@@ -12,7 +12,7 @@ It demonstrates the core architecture of real CDNs like Cloudflare or Akamai: re
 
 | Router Dashboard (Live) | Grafana Monitoring (Local) |
 |-------------------------|----------------------------|
-| ![Router Dashboard](screenshots/router-dashboard.png) | ![Grafana](screenshots/grafana.png) |
+| ![Router Dashboard](screenshots/router.png) | ![Grafana](screenshots/grafana.png) |
 
 *The Grafana dashboard shows global cache hit ratio, edge health, and request rate. Prometheus scrapes metrics every 5 seconds.*
 
