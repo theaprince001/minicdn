@@ -60,7 +60,7 @@ It demonstrates the core architecture of real CDNs like Cloudflare or Akamai: re
 │ Origin (8000) │
 │ Static file server │
 └─────────────────────┘
->>>>>>> fdbc292 (Add screenshots and update configs)
+>>>>>>> 
 
 ### Why this design?
 
