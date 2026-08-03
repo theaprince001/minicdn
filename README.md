@@ -19,19 +19,14 @@ It demonstrates the core architecture of real CDNs like Cloudflare or Akamai: re
 ---
 
 ## 🧠 Architecture
-flowchart TD
-    Client[Client] -->|HTTPS| Router[Router :8080]
-    Router -->|Geo-IP mapping| EdgeUS[Edge US :9003]
-    Router -->|Geo-IP mapping| EdgeEU[Edge EU :9002]
-    EdgeUS --> Shield[Origin Shield :9000]
-    EdgeEU --> Shield
-    Shield --> Origin[Origin :8000]
-
-    Router --- R1[Consistent hashing]
-    EdgeUS --- E1[Caffeine LRU + SWR]
-    EdgeEU --- E2[Caffeine LRU + SWR]
-    Shield --- S1[Shared cache + request collapsing]
-    Origin --- O1[Static file server]
+| Layer               | Role                                              |
+| ------------------- | ------------------------------------------------- |
+| Client              | Sends HTTPS requests                              |
+| Router :8080        | Geo-IP routing, consistent hashing, reverse proxy |
+| Edge US :9003       | Regional cache with Caffeine and SWR              |
+| Edge EU :9002       | Regional cache with Caffeine and SWR              |
+| Origin Shield :9000 | Shared cache and request collapsing               |
+| Origin :8000        | Static file server                                |
 
 
 ### Why this design?
